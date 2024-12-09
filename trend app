@@ -1,0 +1,21 @@
+import streamlit as st
+import pandas as pd
+import ta
+import yfinance as yf
+
+st.title("Forex Trend Analysis")
+
+ticker = st.text_input("Enter Forex Pair (e.g., EURUSD=X):", "")
+if ticker:
+    data = yf.download(ticker, period="1mo", interval="1h")
+    bb = ta.volatility.BollingerBands(close=data['Close'])
+    data['BB_upper'] = bb.bollinger_hband()
+    data['BB_lower'] = bb.bollinger_lband()
+    data['RSI'] = ta.momentum.RSIIndicator(close=data['Close']).rsi()
+
+    st.write("Trend Data")
+    st.dataframe(data)
+
+    st.line_chart(data[['Close', 'BB_upper', 'BB_lower']])
+    st.line_chart(data['RSI'])
+streamlit run trend_app.py
